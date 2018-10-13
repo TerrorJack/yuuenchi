@@ -1,5 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module FList
   ( FList
@@ -14,6 +15,7 @@ import Data.Binary
 import qualified Data.Foldable as Foldable
 import Data.Monoid
 import GHC.Exts
+import GHC.Generics
 import Language.Haskell.TH.Syntax
 import Prelude hiding (filter, reverse)
 
@@ -128,6 +130,13 @@ instance Lift a => Lift (FList a) where
                (OccName "fromList")
                (NameG VarName (PkgName "base") (ModName "GHC.Exts"))))
          (ListE xs))
+
+instance Generic (FList a) where
+  type (Rep (FList a)) = Rep [a]
+  {-# INLINE from #-}
+  from = from . toList
+  {-# INLINE to #-}
+  to = fromList . to
 
 {-# INLINE unfoldr #-}
 unfoldr :: (b -> Maybe (a, b)) -> b -> FList a
