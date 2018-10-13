@@ -5,4 +5,4 @@ An amusement park(monorepo) for kaijus(experimental Haskell modules). Once a kai
 Contents:
 
 - `DeBruijn`: Marshalling HOAS to De Bruijn indices.
-- `FList`: A sequence type supporting O(1) append/flatMap, meant as a `DList` replacement.
+- `FList`: A sequence type supporting O(1) append/flatMap/fromList/unfoldr, meant as a `DList` replacement.
