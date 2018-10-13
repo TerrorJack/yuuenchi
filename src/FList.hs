@@ -64,6 +64,10 @@ instance Foldable FList where
           _ -> mempty
   foldMap f (FReverse l) = getDual (foldMap (Dual . f) l)
 
+instance Traversable FList where
+  {-# INLINE sequenceA #-}
+  sequenceA = fmap fromList . sequenceA . toList
+
 instance Applicative FList where
   {-# INLINE pure #-}
   pure = FPure
