@@ -123,7 +123,7 @@ instance Lift a => Lift (FList a) where
          (VarE
             (Name
                (OccName "fromList")
-               (NameG VarName (PkgName "base") (ModName "Data.Foldable"))))
+               (NameG VarName (PkgName "base") (ModName "GHC.Exts"))))
          (ListE xs))
 
 {-# INLINE unfoldr #-}
