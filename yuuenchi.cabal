@@ -1,0 +1,20 @@
+name:                  yuuenchi
+version:               0.1.0.0
+homepage:              https://github.com/TerrorJack/yuuenchi
+license:               BSD3
+license-file:          LICENSE
+author:                Shao Cheng
+maintainer:            astrohavoc@gmail.com
+copyright:             (c) 2018 Shao Cheng
+build-type:            Simple
+extra-source-files:    CHANGELOG.md
+                       README.md
+cabal-version:         >=1.10
+
+library
+  exposed-modules:     DeBruijn
+                       FList
+  ghc-options:         -Wall
+  build-depends:       base >=4.12 && <4.13
+  hs-source-dirs:      src
+  default-language:    Haskell2010
