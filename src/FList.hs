@@ -1,5 +1,4 @@
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module FList
@@ -10,15 +9,10 @@ module FList
 
 import Control.Applicative
 import Control.Monad
-import Data.Bool
-import Data.Foldable hiding (toList)
+import Data.Binary
 import qualified Data.Foldable as Foldable
-import Data.Function
-import Data.Maybe
-import Data.Monoid
-import Data.Semigroup
 import GHC.Exts
-import Text.Show
+import Prelude hiding (filter)
 
 data CQueue m a b where
   CPure :: (a -> m b) -> CQueue m a b
@@ -106,6 +100,18 @@ instance IsList (FList a) where
 instance Show a => Show (FList a) where
   {-# INLINE showsPrec #-}
   showsPrec i = showsPrec i . toList
+
+instance Eq a => Eq (FList a) where
+  l0 == l1 = toList l0 == toList l1
+
+instance Ord a => Ord (FList a) where
+  compare l0 l1 = compare (toList l0) (toList l1)
+
+instance Binary a => Binary (FList a) where
+  {-# INLINE get #-}
+  get = fromList <$> get
+  {-# INLINE put #-}
+  put = put . toList
 
 {-# INLINE unfoldr #-}
 unfoldr :: (b -> Maybe (a, b)) -> b -> FList a
