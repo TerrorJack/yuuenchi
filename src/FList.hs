@@ -5,15 +5,17 @@ module FList
   ( FList
   , unfoldr
   , filter
+  , reverse
   ) where
 
 import Control.Applicative
 import Control.Monad
 import Data.Binary
 import qualified Data.Foldable as Foldable
+import Data.Monoid
 import GHC.Exts
 import Language.Haskell.TH.Syntax
-import Prelude hiding (filter)
+import Prelude hiding (filter, reverse)
 
 data CQueue m a b where
   CPure :: (a -> m b) -> CQueue m a b
@@ -26,6 +28,7 @@ data FList a where
   FBind :: FList a -> CQueue FList a b -> FList b
   FFoldable :: Foldable t => t a -> FList a
   FUnfoldr :: (b -> Maybe (a, b)) -> b -> FList a
+  FReverse :: FList a -> FList a
 
 instance Semigroup (FList a) where
   {-# INLINE (<>) #-}
@@ -64,6 +67,7 @@ instance Foldable FList where
         case g s of
           Just (a, s') -> f a <> w s'
           _ -> mempty
+  foldMap f (FReverse l) = getDual (foldMap (Dual . f) l)
 
 instance Applicative FList where
   {-# INLINE pure #-}
@@ -137,3 +141,7 @@ filter f =
          if f a
            then FPure a
            else FNil)
+
+{-# INLINE reverse #-}
+reverse :: FList a -> FList a
+reverse = FReverse
