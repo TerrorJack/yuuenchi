@@ -16,7 +16,8 @@ import System.FilePath
 import System.Process
 
 data GHCInfo a = GHCInfo
-  { ghcInfo :: [(String, String)]
+  { ghcLibDir :: FilePath
+  , ghcInfo :: [(String, String)]
   , ghcArgs :: [String]
   , ghcEnvironment :: [(String, String)]
   , ghcExtraInfo :: a
@@ -27,11 +28,12 @@ ghcInceptionRun m =
   runIO
     (do _ghc_name <- takeFileName <$> getExecutablePath
         _ghc_info <- read <$> readProcess _ghc_name ["--info"] ""
+        let Just _ghc_libdir = lookup "LibDir" _ghc_info
         _ghc_args <- getArgs
         _ghc_env <- getEnvironment
         _ghc_extra_info <-
           GHC.defaultErrorHandler GHC.defaultFatalMessager GHC.defaultFlushOut $
-          GHC.runGhc (lookup "LibDir" _ghc_info) $ do
+          GHC.runGhc (Just _ghc_libdir) $ do
             dflags0 <- GHC.getSessionDynFlags
             (dflags1, _, _) <-
               GHC.parseDynamicFlags dflags0 $ map GHC.noLoc _ghc_args
@@ -39,7 +41,8 @@ ghcInceptionRun m =
             m
         pure
           GHCInfo
-            { ghcInfo = _ghc_info
+            { ghcLibDir = _ghc_libdir
+            , ghcInfo = _ghc_info
             , ghcArgs = _ghc_args
             , ghcEnvironment = _ghc_env
             , ghcExtraInfo = _ghc_extra_info
