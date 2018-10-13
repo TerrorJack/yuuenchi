@@ -16,11 +16,14 @@ library
                        FList
                        GHCInception
                        InlineEverything
+                       StrictByteStringBuilder
   ghc-options:         -Wall
   build-depends:       base >=4.12 && <4.13
+                     , bytestring >= 0.10 && < 0.11
                      , binary >= 0.8 && <0.9
                      , filepath >= 1.4 && <1.5
                      , ghc >= 8.6 && <8.8
+                     , ghc-compact >= 0.1 && <0.2
                      , process >= 1.6 && <1.7
                      , template-haskell >= 2.14 && <2.15
   hs-source-dirs:      src
