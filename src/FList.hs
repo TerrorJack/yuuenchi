@@ -17,15 +17,11 @@ import GHC.Exts
 import Language.Haskell.TH.Syntax
 import Prelude hiding (filter, reverse)
 
-data CQueue m a b where
-  CPure :: (a -> m b) -> CQueue m a b
-  CSnoc :: CQueue m a b -> (b -> m c) -> CQueue m a c
-
 data FList a where
   FNil :: FList a
   FAppend :: FList a -> FList a -> FList a
   FPure :: a -> FList a
-  FBind :: FList a -> CQueue FList a b -> FList b
+  FBind :: FList a -> (a -> FList b) -> FList b
   FFoldable :: Foldable t => t a -> FList a
   FUnfoldr :: (b -> Maybe (a, b)) -> b -> FList a
   FReverse :: FList a -> FList a
@@ -44,7 +40,7 @@ instance Functor FList where
   {-# INLINE fmap #-}
   fmap _ FNil = FNil
   fmap f (FPure a) = FPure (f a)
-  fmap f (FBind m q) = FBind m (q `CSnoc` (FPure . f))
+  fmap f (FBind m c) = FBind m (fmap f . c)
   fmap f (FUnfoldr g b) =
     FUnfoldr
       (\s ->
@@ -52,14 +48,13 @@ instance Functor FList where
            Just (a, s') -> Just (f a, s')
            _ -> Nothing)
       b
-  fmap f l = FBind l (CPure (FPure . f))
+  fmap f l = FBind l (FPure . f)
 
 instance Foldable FList where
   foldMap _ FNil = mempty
   foldMap f (FAppend l0 l1) = foldMap f l0 <> foldMap f l1
   foldMap f (FPure a) = f a
-  foldMap f (FBind m (CPure g)) = foldMap (foldMap f . g) m
-  foldMap f (FBind m (CSnoc q g)) = foldMap (foldMap f . g) (FBind m q)
+  foldMap f (FBind m c) = foldMap (foldMap f . c) m
   foldMap f (FFoldable l) = foldMap f l
   foldMap f (FUnfoldr g b) = w b
     where
@@ -77,8 +72,8 @@ instance Applicative FList where
   _ <*> FNil = FNil
   FPure f <*> l = f <$> l
   f <*> FPure a = ($ a) <$> f
-  FBind m q <*> l = FBind m (q `CSnoc` (<$> l))
-  f <*> l = FBind f (CPure (<$> l))
+  FBind m c <*> l = FBind m ((<$> l) <=< c)
+  f <*> l = FBind f (<$> l)
 
 instance Alternative FList where
   {-# INLINE empty #-}
@@ -90,8 +85,8 @@ instance Monad FList where
   {-# INLINE (>>=) #-}
   FNil >>= _ = FNil
   FPure a >>= f = f a
-  FBind m q >>= f = FBind m (q `CSnoc` f)
-  m >>= f = FBind m (CPure f)
+  FBind m q >>= f = FBind m (f <=< q)
+  m >>= f = FBind m f
 
 instance MonadPlus FList
 
