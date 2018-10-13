@@ -12,6 +12,7 @@ import Control.Monad
 import Data.Binary
 import qualified Data.Foldable as Foldable
 import GHC.Exts
+import Language.Haskell.TH.Syntax
 import Prelude hiding (filter)
 
 data CQueue m a b where
@@ -112,6 +113,18 @@ instance Binary a => Binary (FList a) where
   get = fromList <$> get
   {-# INLINE put #-}
   put = put . toList
+
+instance Lift a => Lift (FList a) where
+  {-# INLINE lift #-}
+  lift l = do
+    xs <- traverse lift (toList l)
+    pure
+      (AppE
+         (VarE
+            (Name
+               (OccName "fromList")
+               (NameG VarName (PkgName "base") (ModName "Data.Foldable"))))
+         (ListE xs))
 
 {-# INLINE unfoldr #-}
 unfoldr :: (b -> Maybe (a, b)) -> b -> FList a
