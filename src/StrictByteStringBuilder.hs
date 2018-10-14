@@ -3,6 +3,7 @@
 
 module StrictByteStringBuilder
   ( Builder
+  , sizeOfBuilder
   , runBuilder
   , runBuilderOnPtr
   , fromStorable
@@ -14,7 +15,6 @@ module StrictByteStringBuilder
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LBS
 import Data.ByteString.Unsafe
-import Data.Functor
 import Data.String
 import Foreign
 import GHC.ForeignPtr
@@ -36,6 +36,10 @@ instance IsString Builder where
   {-# INLINE fromString #-}
   fromString = fromStrictByteString . fromString
 
+{-# INLINE sizeOfBuilder #-}
+sizeOfBuilder :: Builder -> Int
+sizeOfBuilder (Builder l _) = l
+
 {-# INLINE runBuilder #-}
 runBuilder :: Builder -> IO BS.ByteString
 runBuilder (Builder l b) = do
@@ -43,8 +47,8 @@ runBuilder (Builder l b) = do
   withForeignPtr fp $ \p -> b p *> unsafePackCStringLen (castPtr p, l)
 
 {-# INLINE runBuilderOnPtr #-}
-runBuilderOnPtr :: Builder -> Ptr a -> IO Int
-runBuilderOnPtr (Builder l b) p = b (castPtr p) $> l
+runBuilderOnPtr :: Builder -> Ptr a -> IO ()
+runBuilderOnPtr (Builder _ b) p = b (castPtr p)
 
 {-# INLINE fromStorable #-}
 fromStorable :: Storable a => a -> Builder
