@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE StrictData #-}
 
 module StrictByteStringBuilder
@@ -13,6 +14,8 @@ module StrictByteStringBuilder
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LBS
 import Data.ByteString.Unsafe
+import Data.Functor
+import Data.String
 import Foreign
 import GHC.ForeignPtr
 
@@ -23,25 +26,25 @@ data Builder =
 instance Semigroup Builder where
   {-# INLINE (<>) #-}
   Builder l0 b0 <> Builder l1 b1 =
-    Builder (l0 + l1) (\p -> b0 p *> b1 (p `plusPtr` l0))
+    Builder (l0 + l1) (\(!p) -> b0 p *> b1 (p `plusPtr` l0))
 
 instance Monoid Builder where
   {-# INLINE mempty #-}
   mempty = Builder 0 (const (pure ()))
 
+instance IsString Builder where
+  {-# INLINE fromString #-}
+  fromString = fromStrictByteString . fromString
+
 {-# INLINE runBuilder #-}
 runBuilder :: Builder -> IO BS.ByteString
 runBuilder (Builder l b) = do
   fp <- mallocPlainForeignPtrBytes l
-  withForeignPtr fp $ \p -> do
-    b p
-    unsafePackCStringLen (castPtr p, l)
+  withForeignPtr fp $ \p -> b p *> unsafePackCStringLen (castPtr p, l)
 
 {-# INLINE runBuilderOnPtr #-}
 runBuilderOnPtr :: Builder -> Ptr a -> IO Int
-runBuilderOnPtr (Builder l b) p = do
-  b $ castPtr p
-  pure l
+runBuilderOnPtr (Builder l b) p = b (castPtr p) $> l
 
 {-# INLINE fromStorable #-}
 fromStorable :: Storable a => a -> Builder
