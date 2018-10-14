@@ -25,6 +25,8 @@ data Builder =
 
 instance Semigroup Builder where
   {-# INLINE (<>) #-}
+  Builder 0 _ <> b = b
+  b <> Builder 0 _ = b
   Builder l0 b0 <> Builder l1 b1 =
     Builder (l0 + l1) (\(!p) -> b0 p *> b1 (p `plusPtr` l0))
 
