@@ -5,18 +5,20 @@ module GHCInception
   ( GHCInfo(..)
   , ghcInceptionRun
   , ghcInception
+  , ghcInception'
   ) where
 
 import Data.Functor
 import qualified DynFlags as GHC
 import qualified GHC
 import Language.Haskell.TH.Syntax
+import System.Directory
 import System.Environment
 import System.FilePath
 import System.Process
 
 data GHCInfo a = GHCInfo
-  { ghcLibDir :: FilePath
+  { ghcPath, ghcLibDir :: FilePath
   , ghcInfo :: [(String, String)]
   , ghcArgs :: [String]
   , ghcEnvironment :: [(String, String)]
@@ -26,8 +28,8 @@ data GHCInfo a = GHCInfo
 ghcInceptionRun :: Lift a => GHC.Ghc a -> Q (TExp (GHCInfo a))
 ghcInceptionRun m =
   runIO
-    (do _ghc_name <- takeFileName <$> getExecutablePath
-        _ghc_info <- read <$> readProcess _ghc_name ["--info"] ""
+    (do Just _ghc_path <- takeFileName <$> getExecutablePath >>= findExecutable
+        _ghc_info <- read <$> readProcess _ghc_path ["--info"] ""
         let Just _ghc_libdir = lookup "LibDir" _ghc_info
         _ghc_args <- getArgs
         _ghc_env <- getEnvironment
@@ -41,7 +43,8 @@ ghcInceptionRun m =
             m
         pure
           GHCInfo
-            { ghcLibDir = _ghc_libdir
+            { ghcPath = _ghc_path
+            , ghcLibDir = _ghc_libdir
             , ghcInfo = _ghc_info
             , ghcArgs = _ghc_args
             , ghcEnvironment = _ghc_env
@@ -51,3 +54,6 @@ ghcInceptionRun m =
 
 ghcInception :: Q (TExp (GHCInfo ()))
 ghcInception = ghcInceptionRun (pure ())
+
+ghcInception' :: Q Exp
+ghcInception' = unTypeQ ghcInception
