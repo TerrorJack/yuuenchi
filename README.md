@@ -6,6 +6,7 @@ Contents:
 
 * `DeBruijn`: Marshalling HOAS to De Bruijn indices.
 * `FList`: A sequence type supporting O(1) `append`/`>>=`/`fromList`/`reverse`/`unfoldr`, meant as a `DList` replacement.
+* `Freer`: Church-encoded freer monad.
 * `GHCInception`: Get GHC info and run GHC API in a TH splice.
 * `InlineEverything`: GHC source plugin which spares you the trouble of adding `INLINEABLE` annotations to every function/class method in a module.
 * `StrictByteStringBuilder`: Builder for strict `ByteString`s.
