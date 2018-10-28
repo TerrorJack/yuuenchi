@@ -2,17 +2,19 @@ module OneShotIO
   ( oneshot
   ) where
 
+import Control.Concurrent
 import Control.Monad
-import Data.IORef
-import System.IO
+import Data.Function
 
 {-# INLINE oneshot #-}
 oneshot :: IO a -> IO (IO a)
 oneshot m = do
-  ref <-
-    fixIO $ \ref ->
-      newIORef $ do
-        a <- m
-        atomicWriteIORef ref $ pure a
+  ref <- newEmptyMVar
+  putMVar ref $ do
+    a <- m
+    putMVar ref $
+      fix $ \go -> do
+        putMVar ref go
         pure a
-  pure $ join $ readIORef ref
+    pure a
+  pure $ join $ takeMVar ref
