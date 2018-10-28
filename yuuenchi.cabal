@@ -17,6 +17,7 @@ library
                        Freer
                        GHCInception
                        InlineEverything
+                       LazyRead
                        OneShotIO
                        StrictByteStringBuilder
                        SyncExceptionIO
