@@ -9,5 +9,6 @@ Contents:
 * `Freer`: Church-encoded freer monad.
 * `GHCInception`: Get GHC info and run GHC API in a TH splice.
 * `InlineEverything`: GHC source plugin which spares you the trouble of adding `INLINEABLE` annotations to every function/class method in a module.
+* `OneShotIO`: Ensure an `IO` action is run only once, latter invocations return cached result.
 * `StrictByteStringBuilder`: Builder for strict `ByteString`s.
 * `SyncExceptionIO`: Catch all sync exceptions, useful for working around lack of exception handling in modules like `Control.Monad.Par.IO`.

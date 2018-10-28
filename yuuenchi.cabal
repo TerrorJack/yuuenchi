@@ -17,6 +17,7 @@ library
                        Freer
                        GHCInception
                        InlineEverything
+                       OneShotIO
                        StrictByteStringBuilder
                        SyncExceptionIO
   ghc-options:         -Wall
