@@ -13,6 +13,7 @@ cabal-version:         >=1.10
 
 library
   exposed-modules:     DeBruijn
+                       FinalFreer
                        FList
                        Freer
                        GHCInception

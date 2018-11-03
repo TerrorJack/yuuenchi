@@ -5,8 +5,9 @@ An amusement park(monorepo) for kaijus(experimental Haskell modules). Once a kai
 Contents:
 
 * `DeBruijn`: Marshalling HOAS to De Bruijn indices.
+* `FinalFreer`: Tagless final encoding of freer monads.
 * `FList`: A sequence type supporting O(1) `append`/`>>=`/`fromList`/`reverse`/`unfoldr`, meant as a `DList` replacement.
-* `Freer`: Church-encoded freer monad.
+* `Freer`: Church encoding of freer monads.
 * `GHCInception`: Get GHC info and run GHC API in a TH splice.
 * `InlineEverything`: GHC source plugin which spares you the trouble of adding `INLINEABLE` annotations to every function/class method in a module.
 * `LazyRead`: General abstraction of the input part of lazy I/O.
