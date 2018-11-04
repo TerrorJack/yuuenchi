@@ -5,6 +5,7 @@ module FinalFreer
   , liftFreer
   , hoistFreer
   , retractFreer
+  , foldFreer
   ) where
 
 import Control.Applicative
@@ -17,6 +18,10 @@ newtype Freer f a = Freer
   { unFreer :: forall m. Monad m =>
                            ReaderT (Natural f m) m a
   }
+
+instance MonadTrans Freer where
+  {-# INLINE lift #-}
+  lift = liftFreer
 
 instance Functor (Freer f) where
   {-# INLINE fmap #-}
@@ -55,3 +60,7 @@ hoistFreer t (Freer m) = Freer (withReaderT (\(Natural g) -> Natural (g . t)) m)
 {-# INLINE retractFreer #-}
 retractFreer :: Monad m => Freer m a -> m a
 retractFreer (Freer m) = runReaderT m (Natural id)
+
+{-# INLINE foldFreer #-}
+foldFreer :: Monad m => (forall x. f x -> m x) -> Freer f a -> m a
+foldFreer t (Freer m) = runReaderT m (Natural t)

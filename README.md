@@ -4,6 +4,7 @@ An amusement park(monorepo) for kaijus(experimental Haskell modules). Once a kai
 
 Contents:
 
+* `Boom`: Replace all `undefined` in your code by `$(boom)` when you don't wanna bother coming up with an error message. When it booms at runtime, you know the source location.
 * `DeBruijn`: Marshalling HOAS to De Bruijn indices.
 * `FinalFreer`: Tagless final encoding of freer monads.
 * `FList`: A sequence type supporting O(1) `append`/`>>=`/`fromList`/`reverse`/`unfoldr`, meant as a `DList` replacement.
